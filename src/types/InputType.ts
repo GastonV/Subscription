@@ -1,6 +1,6 @@
 
-export type Inputs = {
-		Vanilla: string,
-		Chocolate: string,
-		Strawberry: string,
+export type FormInputs = {
+		Vanilla: number,
+		Chocolate: number,
+		Strawberry: number,
 };

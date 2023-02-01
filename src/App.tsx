@@ -4,15 +4,35 @@ import { Button } from '@mui/material';
 import { initFlavors, subscriptions } from './data/constants';
 import { FlavorsType } from './types/FlavorsType';
 import InputFlavors from './components/InputFlavors';
+import axios from 'axios';
+import { FormInputs } from './types/InputType';
+
+const URL = "https://eo948ohkp6qvq4j.m.pipedream.net";
 
 function App() {
 	const [subscription, setSubscription] = useState(0);
 	const [flavors, setFlavors] = useState(initFlavors);
-	const [formData, setFormData] = useState({} as any)
+	const [formData, setFormData] = useState<FormInputs>();
+
+
+	const totalFlavors = (): boolean => {
+		const total = Object.values(flavors).reduce((a, b) => a + b, 0);
+		return total > subscription || total < subscription;
+	}
 
 	useEffect(() => {
-		console.log(formData, "formData")
+		if (!formData) return;
+		if (totalFlavors()) {
+			window.alert('Total flavors must be equal to subscription')
+			return;
+		}
+		const stringifiesPayload = JSON.stringify(formData);
+		axios.post(URL, stringifiesPayload).then((response) => {
+			console.log(response.data)
+		});
 	}, [formData])
+
+
 	const onSubmit = () => {
 		setFormData(flavors);
 	};
@@ -36,15 +56,14 @@ function App() {
 	};
 
 	return (
-		<>
+		<div className="flex self-center flex-col">
 			<div className='flex flex-row'>
 				{
-					subscriptions.map((item, index) =>
+					subscriptions.map((item) =>
 						<div key={item} className='m-2'>
-							<Button onClick={event => selectSubscription(item)}
+							<Button onClick={() => selectSubscription(item)}
 											variant={'contained'}>
-								<div>Subscription of</div>
-								<div>{item}</div>
+								<div>Subscription of {item}</div>
 							</Button>
 						</div>
 					)
@@ -57,7 +76,7 @@ function App() {
 				onSubmit();
 			}}>
 				{
-					subscription===0 ? <></> : Object.keys(flavors).map((item, index) =>
+					subscription===0 ? <></> : Object.keys(flavors).map((item) =>
 						<div key={item + 1} className='m-2'>
 							<InputFlavors
 								flavor={item}
@@ -70,11 +89,11 @@ function App() {
 				}
 				{
 					subscription===0 ? <></> :
-					<Button className={'m-2'} variant={'contained'} type={'submit'}>Submit</Button>
+						<Button className={'m-2 flex self-center'} variant={'contained'} type={'submit'}>Submit</Button>
 				}
 
 			</form>
-		</>
+		</div>
 	);
 }
 
